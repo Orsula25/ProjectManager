@@ -49,8 +49,11 @@ namespace ProjectManager.BLL.Services
         // creer un projet (uniquement manager)
         public Guid Insert(Project project)
         {
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
+
             if (!_employeeService.IsProjectManager(project.ProjectManagerId))
-                throw new InvalidOperationException("Seuls les chefs de projet peuvent créer des projets.");
+                throw new UnauthorizedAccessException("Seuls les chefs de projet peuvent créer des projets.");
 
             return _dalService.Insert(project.ToDAL());
 
@@ -59,8 +62,10 @@ namespace ProjectManager.BLL.Services
         // modifier un projet (uuniquement manager)
         public void Update(Project project)
         {
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
             if (!_employeeService.IsProjectManager(project.ProjectManagerId))
-                throw new InvalidOperationException("Seuls les chefs de projet peuvent modifier des projets. ");
+                throw new UnauthorizedAccessException("Seuls les chefs de projet peuvent modifier des projets. ");
             _dalService.Update(project.ToDAL());
         }
     }
