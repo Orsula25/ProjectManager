@@ -21,7 +21,7 @@ namespace ProjectManager.DAL.Services
             _connection = connection;
         }
 
-        
+
         //SP_Project_Get_ById
         public Project GetById(Guid projectId)
         {
@@ -33,9 +33,12 @@ namespace ProjectManager.DAL.Services
                 _connection.Open();
                 using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                 {
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        return reader.ToProject();
+                        Project p = reader.ToProject();
+
+                        if (p.ProjectId == projectId)
+                            return p;
                     }
 
                     throw new ArgumentOutOfRangeException(nameof(projectId));
@@ -101,16 +104,21 @@ namespace ProjectManager.DAL.Services
             {
                 command.CommandText = "SP_Project_Insert";
                 command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Name", project.Name);
-                command.Parameters.AddWithValue("@Description", project.Description);
-                command.Parameters.AddWithValue("@ProjectManagerId", project.ProjectManagerId);
+                command.Parameters.AddWithValue("@projectManagerId", project.ProjectManagerId);
+                command.Parameters.AddWithValue("@name", project.Name);
+                command.Parameters.AddWithValue("@description", project.Description);
                 _connection.Open();
-                
-                Guid id = (Guid)command.ExecuteScalar();
 
-                _connection.Close();
-
-                return id;
+                _connection.Open();
+                try
+                {
+                    Guid id = (Guid)command.ExecuteScalar();
+                    return id;
+                }
+                finally
+                {
+                    _connection.Close();
+                }
             }
 
         }
@@ -125,12 +133,17 @@ namespace ProjectManager.DAL.Services
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@ProjectId", project.ProjectId);
                 command.Parameters.AddWithValue("@Description", project.Description);
-              
+
                 _connection.Open();
-                command.ExecuteNonQuery();
-                _connection.Close();
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                finally
+                {
+                    _connection.Close();
+                }
             }
-           
         }
     }
 }

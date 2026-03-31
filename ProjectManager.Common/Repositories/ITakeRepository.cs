@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace ProjectManager.Common.Repositories
 {
-    public interface ITakeRepository<ITakePart>
+    public interface ITakeRepository<TTakePart>
     {
 
-        public void AddMenber(Guid employeeId, Guid projectId, DateTime startDate);
+        public void AddMember(Guid employeeId, Guid projectId, DateTime startDate);
 
-        public void RemoveMenber(Guid employeeId, Guid projectId, DateTime endDate);
+        public void RemoveMember(Guid employeeId, Guid projectId, DateTime endDate);
 
 
     }

@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ProjectManager.Common\ProjectManager.Common.csproj" />
+    <ProjectReference Include="..\ProjectManager.DAL\ProjectManager.DAL.csproj" />
   </ItemGroup>
 
 </Project>

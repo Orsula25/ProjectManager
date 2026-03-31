@@ -23,7 +23,7 @@ namespace ProjectManager.DAL.Services
         // ajouter un employe a un projet
         
 
-        public void AddMenber(Guid employeeId, Guid projectId, DateTime startDate)
+        public void AddMember(Guid employeeId, Guid projectId, DateTime startDate)
         {
             using (SqlCommand command = _connection.CreateCommand())
             {
@@ -44,7 +44,7 @@ namespace ProjectManager.DAL.Services
         // retirer un employe d'un projet
 
 
-        public void RemoveMenber(Guid employeeId, Guid projectId, DateTime endDate)
+        public void RemoveMember(Guid employeeId, Guid projectId, DateTime endDate)
         {
 
             using (SqlCommand command = _connection.CreateCommand())

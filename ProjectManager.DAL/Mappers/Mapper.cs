@@ -15,13 +15,12 @@ namespace ProjectManager.DAL.Mappers
         {
             return new Employee
             {
-                EmployeeId = (Guid)record[nameof(Employee.EmployeeId)],
-                FirstName = (string)record[nameof(Employee.FirstName)],
-                LastName = (string)record[nameof(Employee.LastName)],
-                HireDate = (DateTime)record[nameof(Employee.HireDate)],
-                IsProjectManager = (bool)record[nameof(Employee.IsProjectManager)],
-                Email = (string)record[nameof(Employee.Email).ToString()]
-
+                EmployeeId = (Guid)record["EmployeeId"],
+                FirstName = (string)record["Firstname"],
+                LastName = (string)record["Lastname"],
+                HireDate = (DateTime)record["Hiredate"],
+                IsProjectManager = (bool)record["IsProjectManager"],
+                Email = (string)record["Email"]
             };
         }
 
@@ -31,7 +30,7 @@ namespace ProjectManager.DAL.Mappers
             {
                 UserId = (Guid)record[nameof(User.UserId)],
                 Email = (string)record[nameof(User.Email)],
-                Password = (string)record[nameof(User.Password)],
+                Password = (byte[])record[nameof(User.Password)],
                 EmployeeId = (Guid)record[nameof(User.EmployeeId)]
             };
 
@@ -66,9 +65,8 @@ namespace ProjectManager.DAL.Mappers
 
 
 
-      
 
     }
 
-        
+
 }
