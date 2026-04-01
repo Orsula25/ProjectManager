@@ -31,6 +31,7 @@ namespace ProjectManager.ASPMVC.Controllers
 
         // traiter le login
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Login(LoginForm form)
         {
             Debug.WriteLine("POST Login called");

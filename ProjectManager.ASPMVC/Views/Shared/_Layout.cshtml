@@ -15,9 +15,12 @@
                     <h1 class="h3 mb-0">Bienvenue, @(ViewData["EmployeeName"] ?? "Utilisateur")</h1>
                 </div>
                 <div class="col-auto">
-                    <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-outline-light">Déconnexion</button>
-                    </form>
+                    @if (ViewData["EmployeeId"] != null)
+                    {
+                        <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light">Déconnexion</button>
+                        </form>
+                    }
                 </div>
             </div>
         </div>

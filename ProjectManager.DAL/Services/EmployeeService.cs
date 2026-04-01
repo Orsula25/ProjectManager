@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using ProjectManager.DAL.Mappers;
-using ProjectManager.DAL.Entities;
 using System.Threading.Channels;
 
 namespace ProjectManager.DAL.Services

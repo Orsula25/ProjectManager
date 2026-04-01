@@ -6,92 +6,77 @@
     ViewData["Title"] = Model.Project.Name;
     ViewData["EmployeeName"] = $"{session.FirstName} {session.LastName}";
     ViewData["IsManager"] = session.IsManager;
-    ViewData["UnreadPostsCount"] = 3; // À remplacer par le vrai compteur
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-start mb-4">
-            <div>
-                <h1>@Model.Project.Name</h1>
-                <p class="text-muted">Créé le @Model.Project.CreationDate.ToString("dd/MM/yyyy")</p>
-                <p>@Model.Project.Description</p>
-            </div>
-            @if (session.IsManager)
+<h1>@Model.Project.Name</h1>
+<p class="text-muted">Créé le @Model.Project.CreationDate.ToString("dd/MM/yyyy")</p>
+<p>@Model.Project.Description</p>
+
+@if (session.IsManager)
+{
+    <form asp-action="UpdateDescription" asp-route-id="@Model.Project.ProjectId" method="post">
+        <input type="text" name="description" class="form-control" value="@Model.Project.Description" />
+        <button type="submit" class="btn btn-outline-primary mt-2">Modifier la description</button>
+    </form>
+}
+
+<hr />
+
+<h4>Équipe du projet</h4>
+
+@foreach (var member in Model.Members)
+{
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <span>@member.FirstName @member.LastName</span>
+        @if (member.IsProjectManager)
+        {
+            <span class="badge bg-primary">Chef de projet</span>
+        }
+        @if (session.IsManager && !member.IsProjectManager)
+        {
+            <form asp-action="RemoveMember" method="post" class="d-inline">
+                <input type="hidden" name="projectId" value="@Model.Project.ProjectId" />
+                <input type="hidden" name="employeeId" value="@member.EmployeeId" />
+                <button type="submit" class="btn btn-sm btn-outline-danger">Retirer</button>
+            </form>
+        }
+    </div>
+}
+
+@if (session.IsManager && Model.FreeEmployees != null && Model.FreeEmployees.Any())
+{
+    <form asp-action="AddMember" method="post" class="mt-3">
+        <input type="hidden" name="projectId" value="@Model.Project.ProjectId" />
+        <select name="employeeId" class="form-select w-auto d-inline">
+            @foreach (var emp in Model.FreeEmployees)
             {
-                <a href="#" class="btn btn-outline-primary">Modifier la description</a>
+                <option value="@emp.EmployeeId">@emp.FirstName @emp.LastName</option>
             }
-        </div>
-    </div>
-</div>
+        </select>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+    </form>
+}
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Équipe du projet</h5>
-                @if (session.IsManager)
-                {
-                    <button class="btn btn-sm btn-primary">Ajouter un membre</button>
-                }
-            </div>
-            <div class="card-body">
-                @foreach (var member in Model.Members)
-                {
-                    <div class="d-flex justify-content-between align-items-center mb-2 team-member">
-                        <div>
-                            <a href="mailto:@(member.Email ?? "")" class="text-decoration-none">
-                                @member.FirstName @member.LastName
-                            </a>
-                            @if (member.IsProjectManager)
-                            {
-                                <span class="badge bg-primary ms-2">Chef de projet</span>
-                            }
-                            else if (session.IsManager && member.EmployeeId != session.EmployeeId)
-                            {
-                                <span class="text-muted ms-2">(@member.FirstName.Substring(0, 1).ToUpper()@member.LastName.Substring(0, 1).ToUpper())</span>
-                            }
-                        </div>
-                        @if (session.IsManager && !member.IsProjectManager && member.EmployeeId != session.EmployeeId)
-                        {
-                            <button class="btn btn-sm btn-outline-danger">×</button>
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
+<hr />
 
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Flux des messages</h5>
-                    <a asp-controller="Post" asp-action="Create" asp-route-projectId="@Model.Project.ProjectId" 
-                       class="btn btn-primary">Rédiger un nouveau post</a>
-                </div>
-            </div>
-            <div class="card-body">
-                @if (Model.Posts != null && Model.Posts.Any())
-                {
-                    @foreach (var post in Model.Posts)
-                    {
-                        <div class="border-bottom pb-3 mb-3 post-item">
-                            <h6>@post.Subject</h6>
-                            <p class="mb-2">@post.Content</p>
-                            <small class="text-muted post-meta">
-                                Par @(post.Employee?.FirstName?.Substring(0, 1).ToUpper() + post.Employee?.LastName?.Substring(0, 1).ToUpper() ?? "Anonyme") 
-                                • @Model.Project.Name 
-                                • @post.SendDate.ToString("dd/MM/yyyy HH:mm")
-                            </small>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted text-center py-4">Aucun message pour ce projet</p>
-                }
-            </div>
+<h4>Messages</h4>
+
+<a asp-controller="Post" asp-action="Create" asp-route-projectId="@Model.Project.ProjectId" class="btn btn-primary mb-3">
+    Nouveau post
+</a>
+
+@if (Model.Posts != null && Model.Posts.Any())
+{
+    @foreach (var post in Model.Posts)
+    {
+        <div class="border-bottom mb-3 pb-3">
+            <h6>@post.Subject</h6>
+            <p>@post.Content</p>
+            <small class="text-muted">@post.SendDate.ToString("dd/MM/yyyy HH:mm")</small>
         </div>
-    </div>
-</div>
+    }
+}
+else
+{
+    <p class="text-muted">Aucun message pour ce projet.</p>
+}

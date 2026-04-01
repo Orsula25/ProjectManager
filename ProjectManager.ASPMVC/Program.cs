@@ -19,6 +19,7 @@ namespace ProjectManager.ASPMVC
 
             //  Session
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession();
             builder.Services.AddScoped<UserSessionManager>();
 
@@ -50,14 +51,15 @@ namespace ProjectManager.ASPMVC
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSession();
 
             app.UseRouting();
 
-            app.UseSession(); // IMPORTANT
+           
 
             app.UseAuthorization();
 
-            // Routing MVC (IMPORTANT)
+            
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Auth}/{action=Login}/{id?}");

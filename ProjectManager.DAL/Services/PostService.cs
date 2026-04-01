@@ -81,43 +81,68 @@ namespace ProjectManager.DAL.Services
         // tous les posts pour un manager
         public IEnumerable<Post> GetAllFromManager(Guid managerId)
         {
-            using (SqlCommand command = _connection.CreateCommand())
+            List<Guid> projectIds = new List<Guid>();
+
+            using (SqlCommand cmd = _connection.CreateCommand())
             {
-                command.CommandText = "SP_Post_GetAll_FromManagerId";
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@ManagerId", managerId);
-
+                cmd.CommandText = "SP_Project_Get_FromProjectManagerId";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@ProjectManagerId", managerId);
                 _connection.Open();
-
-                using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
-                {
+                using (SqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
                     while (reader.Read())
-                    {
-                        yield return reader.ToPost();
-                    }
+                        projectIds.Add((Guid)reader["ProjectId"]);
+            }
+
+            List<Post> posts = new List<Post>();
+            foreach (Guid projectId in projectIds)
+            {
+                using (SqlCommand cmd = _connection.CreateCommand())
+                {
+                    cmd.CommandText = "SP_Post_Get_FromProjectId_ProjectManager";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                    _connection.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
+                        while (reader.Read())
+                            posts.Add(reader.ToPost());
                 }
             }
+            return posts;
         }
 
         // tous les posts pour un employé
         public IEnumerable<Post> GetAllFromEmployee(Guid employeeId)
         {
-            using (SqlCommand command = _connection.CreateCommand())
+            List<Guid> projectIds = new List<Guid>();
+
+            using (SqlCommand cmd = _connection.CreateCommand())
             {
-                command.CommandText = "SP_Post_GetAll_FromEmployeeId";
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@EmployeeId", employeeId);
-
+                cmd.CommandText = "SP_Project_Get_FromEmployeeId";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmployeeId", employeeId);
                 _connection.Open();
-
-                using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
-                {
+                using (SqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
                     while (reader.Read())
-                    {
-                        yield return reader.ToPost();
-                    }
+                        projectIds.Add((Guid)reader["ProjectId"]);
+            }
+
+            List<Post> posts = new List<Post>();
+            foreach (Guid projectId in projectIds)
+            {
+                using (SqlCommand cmd = _connection.CreateCommand())
+                {
+                    cmd.CommandText = "SP_Post_Get_FromProjectId_WorkOnProject";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ProjectId", projectId);
+                    cmd.Parameters.AddWithValue("@EmployeeId", employeeId);
+                    _connection.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
+                        while (reader.Read())
+                            posts.Add(reader.ToPost());
                 }
             }
+            return posts;
         }
 
         // ajouter un post

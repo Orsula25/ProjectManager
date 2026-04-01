@@ -15,44 +15,47 @@ namespace ProjectManager.ASPMVC.Controllers
         private readonly IProjectRepository<ProjectManager.BLL.Entities.Project> _projectService;
         private readonly IEmployeeRepository<ProjectManager.BLL.Entities.Employee> _employeeService;
         private readonly IPostRepository<ProjectManager.BLL.Entities.Post> _postService;
+        private readonly ITakeRepository<ProjectManager.BLL.Entities.TakePart> _takePartService;
         private readonly UserSessionManager _session;
 
         public ProjectController(
             IProjectRepository<ProjectManager.BLL.Entities.Project> projectService,
             IEmployeeRepository<ProjectManager.BLL.Entities.Employee> employeeService,
             IPostRepository<ProjectManager.BLL.Entities.Post> postService,
+            ITakeRepository<ProjectManager.BLL.Entities.TakePart> takePartService,
             UserSessionManager session)
         {
             _projectService = projectService;
             _employeeService = employeeService;
             _postService = postService;
+            _takePartService = takePartService;
             _session = session;
         }
 
-        // LISTE DES PROJETS
         public IActionResult Index()
         {
             Guid employeeId = _session.EmployeeId!.Value;
-            IEnumerable<Project> projects = _projectService.GetFromEmployeeId(employeeId);
+
+            IEnumerable<Project> projects = _session.IsManager
+                ? _projectService.GetFromProjectManagerId(employeeId)
+                : _projectService.GetFromEmployeeId(employeeId);
 
             ViewData["EmployeeName"] = $"{_session.FirstName} {_session.LastName}";
             ViewData["IsManager"] = _session.IsManager;
-            ViewData["UnreadPostsCount"] = 3; // À remplacer par le vrai compteur
+            ViewData["UnreadPostsCount"] = 3;
 
             return View(projects);
         }
 
-        // DETAILS (DASHBOARD)
         public IActionResult Details(Guid id)
         {
             Project project = _projectService.GetById(id);
             IEnumerable<Employee> members = _employeeService.GetFromProjectId(id);
+            IEnumerable<Employee> freeEmployees = _employeeService.GetFree();
 
             IEnumerable<Post> posts;
             if (_session.IsManager)
-            {
                 posts = _postService.GetFromProjectIdForManager(id);
-            }
             else
             {
                 Guid employeeId = _session.EmployeeId!.Value;
@@ -61,13 +64,14 @@ namespace ProjectManager.ASPMVC.Controllers
 
             ViewData["EmployeeName"] = $"{_session.FirstName} {_session.LastName}";
             ViewData["IsManager"] = _session.IsManager;
-            ViewData["UnreadPostsCount"] = 3; // À remplacer par le vrai compteur
+            ViewData["UnreadPostsCount"] = 3;
 
             return View(new ProjectDetailsModel
             {
                 Project = project,
                 Members = members,
-                Posts = posts
+                Posts = posts,
+                FreeEmployees = freeEmployees
             });
         }
 
@@ -77,7 +81,6 @@ namespace ProjectManager.ASPMVC.Controllers
             ViewData["EmployeeName"] = $"{_session.FirstName} {_session.LastName}";
             ViewData["IsManager"] = _session.IsManager;
             ViewData["UnreadPostsCount"] = 3;
-
             return View();
         }
 
@@ -91,8 +94,37 @@ namespace ProjectManager.ASPMVC.Controllers
             Guid managerId = _session.EmployeeId!.Value;
             Project project = new Project(form.Name, form.Description, managerId);
             _projectService.Insert(project);
-
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ManagerOnlyAttribute]
+        public IActionResult UpdateDescription(Guid id, string description)
+        {
+            Project project = _projectService.GetById(id);
+            project.UpdateDescription(description);
+            _projectService.Update(project);
+            return RedirectToAction("Details", new { id });
+        }
+
+        [HttpPost]
+        public IActionResult AddMember(Guid projectId, Guid employeeId)
+        {
+            if (!_session.IsManager)
+                return RedirectToAction("Index");
+
+            _takePartService.AddMember(employeeId, projectId, DateTime.Now);
+            return RedirectToAction("Details", new { id = projectId });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveMember(Guid projectId, Guid employeeId)
+        {
+            if (!_session.IsManager)
+                return RedirectToAction("Index");
+
+            _takePartService.RemoveMember(employeeId, projectId, DateTime.Now);
+            return RedirectToAction("Details", new { id = projectId });
         }
     }
 }
