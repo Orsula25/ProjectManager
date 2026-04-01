@@ -1,0 +1,68 @@
+@using ProjectManager.ASPMVC.Handlers
+@inject UserSessionManager session
+@model IEnumerable<ProjectManager.BLL.Entities.Post>
+
+@{
+    ViewData["Title"] = "Flux des messages";
+    ViewData["EmployeeName"] = $"{session.FirstName} {session.LastName}";
+    ViewData["IsManager"] = session.IsManager;
+    ViewData["UnreadPostsCount"] = Model.Count();
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Flux des messages récents</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var post in Model.OrderByDescending(p => p.SendDate))
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">@post.Subject</h5>
+                            <small class="text-muted">
+                                @if (post.SendDate.Date == DateTime.Today)
+                                {
+                                    @post.SendDate.ToString("HH:mm")
+                                    <text>Aujourd'hui</text>
+                                }
+                                else if (post.SendDate.Date == DateTime.Today.AddDays(-1))
+                                {
+                                    @post.SendDate.ToString("HH:mm")
+                                    <text>Hier</text>
+                                }
+                                else
+                                {
+                                    @post.SendDate.ToString("dd/MM/yyyy")
+                                }
+                            </small>
+                        </div>
+                        
+                        <p class="card-text">@post.Content</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted post-meta">
+                                Par @(post.Employee?.FirstName?.Substring(0, 1).ToUpper() + post.Employee?.LastName?.Substring(0, 1).ToUpper() ?? "Anonyme") 
+                                • @if (post.Project != null) { @post.Project.Name }
+                            </small>
+                            <a asp-controller="Project" asp-action="Details" asp-route-id="@post.ProjectId" 
+                               class="btn btn-sm btn-outline-primary">Voir le projet</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <h3 class="text-muted">Aucun message trouvé</h3>
+                <p class="text-muted">Il n'y a aucun message dans vos projets.</p>
+            </div>
+        }
+    </div>
+</div>

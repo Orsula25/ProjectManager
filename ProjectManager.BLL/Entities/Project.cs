@@ -30,6 +30,9 @@ namespace ProjectManager.BLL.Entities
             public DateTime CreationDate { get; private set; }
             public Guid ProjectManagerId { get; private set; }
 
+        // Navigation properties
+        public ICollection<Employee>? Members { get; set; }
+
         // Constructeur (DAL -> BLL)
 
         public Project(Guid projectId, string name, string description, DateTime creationDate, Guid projectManagerId)

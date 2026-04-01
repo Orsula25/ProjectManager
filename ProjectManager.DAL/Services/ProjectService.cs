@@ -14,7 +14,7 @@ namespace ProjectManager.DAL.Services
     public class ProjectService : IProjectRepository<Project>
     {
 
-        public readonly SqlConnection _connection;
+        private readonly SqlConnection _connection;
 
         public ProjectService(SqlConnection connection)
         {
@@ -109,7 +109,7 @@ namespace ProjectManager.DAL.Services
                 command.Parameters.AddWithValue("@description", project.Description);
                 _connection.Open();
 
-                _connection.Open();
+                
                 try
                 {
                     Guid id = (Guid)command.ExecuteScalar();

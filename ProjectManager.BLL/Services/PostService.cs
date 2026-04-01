@@ -21,8 +21,6 @@ namespace ProjectManager.BLL.Services
             _employeeService = employeeService;
         }
 
-
-
         // visible pour l'employe 
         public IEnumerable<Entities.Post> GetFromProjectIdForEmployee(Guid projectId, Guid employeeId)
         {
@@ -39,6 +37,22 @@ namespace ProjectManager.BLL.Services
                 .Select(p => p.ToBLL());
         }
 
+        // tous les posts pour un manager
+        public IEnumerable<Entities.Post> GetAllFromManager(Guid managerId)
+        {
+            return _dalService
+                .GetAllFromManager(managerId)
+                .Select(p => p.ToBLL());
+        }
+
+        // tous les posts pour un employé
+        public IEnumerable<Entities.Post> GetAllFromEmployee(Guid employeeId)
+        {
+            return _dalService
+                .GetAllFromEmployee(employeeId)
+                .Select(p => p.ToBLL());
+        }
+
         // creer un post
         public Guid Insert(Entities.Post post)
         {
@@ -51,10 +65,7 @@ namespace ProjectManager.BLL.Services
             return _dalService.Insert(post.ToDAL());
         }
 
-
-
         // modifier un post
-
         public void Update(Entities.Post post)
         {
             _dalService.Update(post.ToDAL());

@@ -36,7 +36,7 @@ namespace ProjectManager.DAL.Services
 
                 _connection.Close();
 
-                return result != null ? (Guid?)result : null;
+                return result != null && result != DBNull.Value ? (Guid?)result : null;
             }
         }
 
@@ -49,7 +49,7 @@ namespace ProjectManager.DAL.Services
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@EmployeeId", employeeId);
                 _connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                 {
                     if (reader.Read())
                     {

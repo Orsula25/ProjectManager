@@ -11,6 +11,8 @@ namespace ProjectManager.Common.Repositories
 
         public IEnumerable<TPost> GetFromProjectIdForManager(Guid projectId);
         public IEnumerable<TPost> GetFromProjectIdForEmployee(Guid projectId, Guid employeeId);
+        public IEnumerable<TPost> GetAllFromManager(Guid managerId);
+        public IEnumerable<TPost> GetAllFromEmployee(Guid employeeId);
 
         public Guid Insert (TPost post);
 

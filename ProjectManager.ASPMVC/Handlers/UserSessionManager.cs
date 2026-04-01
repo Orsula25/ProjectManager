@@ -43,6 +43,74 @@
             }
         }
 
+        // ROLE 
+        public bool IsManager
+        {
+            get
+            {
+                var context = _httpContextAccessor.HttpContext;
+                if (context is null)
+                    return false;
+
+                return bool.TryParse(context.Session.GetString("IsManager"), out bool result) && result;
+            }
+            set
+            {
+                var context = _httpContextAccessor.HttpContext;
+                if (context is null)
+                    return;
+
+                context.Session.SetString("IsManager", value.ToString());
+            }
+        }
+
+        // Employee Name
+        public string? FirstName
+        {
+            get
+            {
+                var context = _httpContextAccessor.HttpContext;
+                if (context is null)
+                    return null;
+
+                return context.Session.GetString("FirstName");
+            }
+            set
+            {
+                var context = _httpContextAccessor.HttpContext;
+                if (context is null)
+                    return;
+
+                if (value is null)
+                    context.Session.Remove("FirstName");
+                else
+                    context.Session.SetString("FirstName", value);
+            }
+        }
+
+        public string? LastName
+        {
+            get
+            {
+                var context = _httpContextAccessor.HttpContext;
+                if (context is null)
+                    return null;
+
+                return context.Session.GetString("LastName");
+            }
+            set
+            {
+                var context = _httpContextAccessor.HttpContext;
+                if (context is null)
+                    return;
+
+                if (value is null)
+                    context.Session.Remove("LastName");
+                else
+                    context.Session.SetString("LastName", value);
+            }
+        }
+
         // logout
 
         public void Clear()

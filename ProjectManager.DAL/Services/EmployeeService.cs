@@ -23,6 +23,27 @@ namespace ProjectManager.DAL.Services
             _connection = connection;
         }
 
+        public Employee GetById(Guid id)
+        {
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = "SP_Employee_Get_FromEmployeeId";
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@EmployeeId", id);
+
+                _connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                {
+                    if (reader.Read())
+                    {
+                        return reader.ToEmployee();
+                    }
+                }
+                throw new ArgumentOutOfRangeException(nameof(id));
+            }
+        }
+
         public Employee GetEmployeeFromUserId(Guid userId)
         {
             using (SqlCommand command = _connection.CreateCommand())
@@ -31,7 +52,6 @@ namespace ProjectManager.DAL.Services
                 command.CommandType = CommandType.StoredProcedure;
 
                 // paramètre
-
                 command.Parameters.AddWithValue("@UserId", userId);
 
                 _connection.Open();
@@ -45,7 +65,6 @@ namespace ProjectManager.DAL.Services
                 }
                 throw new ArgumentOutOfRangeException(nameof(userId));
             }
-
         }
 
         public IEnumerable<Employee> GetFree()

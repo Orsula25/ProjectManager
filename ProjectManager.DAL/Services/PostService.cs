@@ -42,13 +42,8 @@ namespace ProjectManager.DAL.Services
                 {
                     while (reader.Read())
                     {
-
-                        {
-                            yield return reader.ToPost();
-                        }
-
+                        yield return reader.ToPost();
                     }
-
                 }
 
             }
@@ -84,6 +79,52 @@ namespace ProjectManager.DAL.Services
 
 
         }
+        // tous les posts pour un manager
+        public IEnumerable<Post> GetAllFromManager(Guid managerId)
+        {
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = @"SELECT p.* FROM Post p 
+                                      INNER JOIN Project pr ON p.ProjectId = pr.ProjectId 
+                                      WHERE pr.ProjectManagerId = @ManagerId
+                                      ORDER BY p.SendDate DESC";
+                command.Parameters.AddWithValue("@ManagerId", managerId);
+
+                _connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                {
+                    while (reader.Read())
+                    {
+                        yield return reader.ToPost();
+                    }
+                }
+            }
+        }
+
+        // tous les posts pour un employé
+        public IEnumerable<Post> GetAllFromEmployee(Guid employeeId)
+        {
+            using (SqlCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = @"SELECT p.* FROM Post p 
+                                      INNER JOIN TakePart tp ON p.ProjectId = tp.ProjectId 
+                                      WHERE tp.EmployeeId = @EmployeeId AND tp.EndDate IS NULL
+                                      ORDER BY p.SendDate DESC";
+                command.Parameters.AddWithValue("@EmployeeId", employeeId);
+
+                _connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                {
+                    while (reader.Read())
+                    {
+                        yield return reader.ToPost();
+                    }
+                }
+            }
+        }
+
         // ajouter un post
         public Guid Insert(Post post)
         {

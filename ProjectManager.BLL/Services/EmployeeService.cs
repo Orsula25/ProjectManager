@@ -18,6 +18,12 @@ namespace ProjectManager.BLL.Services
             _dalService = dalService;
         }
 
+        // recuperer l'employee via id
+        public Employee GetById(Guid id)
+        {
+            return _dalService.GetById(id).ToBLL();
+        }
+
         // recuperer l'employee via user id 
         public Employee GetEmployeeFromUserId(Guid userId)
         {
@@ -39,6 +45,7 @@ namespace ProjectManager.BLL.Services
                 .GetFromProjectId(projectId)
                 .Select(e => e.ToBLL());
         }
+        
         // si project manager 
         public bool IsProjectManager(Guid employeeId)
         {

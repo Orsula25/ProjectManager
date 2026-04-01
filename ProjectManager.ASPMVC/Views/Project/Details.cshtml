@@ -1,0 +1,97 @@
+@using ProjectManager.ASPMVC.Handlers
+@inject UserSessionManager session
+@model ProjectManager.ASPMVC.Models.Project.ProjectDetailsModel
+
+@{
+    ViewData["Title"] = Model.Project.Name;
+    ViewData["EmployeeName"] = $"{session.FirstName} {session.LastName}";
+    ViewData["IsManager"] = session.IsManager;
+    ViewData["UnreadPostsCount"] = 3; // À remplacer par le vrai compteur
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h1>@Model.Project.Name</h1>
+                <p class="text-muted">Créé le @Model.Project.CreationDate.ToString("dd/MM/yyyy")</p>
+                <p>@Model.Project.Description</p>
+            </div>
+            @if (session.IsManager)
+            {
+                <a href="#" class="btn btn-outline-primary">Modifier la description</a>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Équipe du projet</h5>
+                @if (session.IsManager)
+                {
+                    <button class="btn btn-sm btn-primary">Ajouter un membre</button>
+                }
+            </div>
+            <div class="card-body">
+                @foreach (var member in Model.Members)
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-2 team-member">
+                        <div>
+                            <a href="mailto:@(member.Email ?? "")" class="text-decoration-none">
+                                @member.FirstName @member.LastName
+                            </a>
+                            @if (member.IsProjectManager)
+                            {
+                                <span class="badge bg-primary ms-2">Chef de projet</span>
+                            }
+                            else if (session.IsManager && member.EmployeeId != session.EmployeeId)
+                            {
+                                <span class="text-muted ms-2">(@member.FirstName.Substring(0, 1).ToUpper()@member.LastName.Substring(0, 1).ToUpper())</span>
+                            }
+                        </div>
+                        @if (session.IsManager && !member.IsProjectManager && member.EmployeeId != session.EmployeeId)
+                        {
+                            <button class="btn btn-sm btn-outline-danger">×</button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Flux des messages</h5>
+                    <a asp-controller="Post" asp-action="Create" asp-route-projectId="@Model.Project.ProjectId" 
+                       class="btn btn-primary">Rédiger un nouveau post</a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (Model.Posts != null && Model.Posts.Any())
+                {
+                    @foreach (var post in Model.Posts)
+                    {
+                        <div class="border-bottom pb-3 mb-3 post-item">
+                            <h6>@post.Subject</h6>
+                            <p class="mb-2">@post.Content</p>
+                            <small class="text-muted post-meta">
+                                Par @(post.Employee?.FirstName?.Substring(0, 1).ToUpper() + post.Employee?.LastName?.Substring(0, 1).ToUpper() ?? "Anonyme") 
+                                • @Model.Project.Name 
+                                • @post.SendDate.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4">Aucun message pour ce projet</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

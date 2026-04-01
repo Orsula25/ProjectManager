@@ -43,6 +43,9 @@ namespace ProjectManager.BLL.Entities
 
         public Guid ProjectId { get; private set; }
 
+        // Navigation properties
+        public Employee? Employee { get; set; }
+        public Project? Project { get; set; }
 
         // constructeur dal->bll
 
