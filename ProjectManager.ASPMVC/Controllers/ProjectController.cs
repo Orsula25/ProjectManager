@@ -98,6 +98,7 @@ namespace ProjectManager.ASPMVC.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [ManagerOnlyAttribute]
         public IActionResult UpdateDescription(Guid id, string description)
         {
@@ -108,20 +109,22 @@ namespace ProjectManager.ASPMVC.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ManagerOnlyAttribute]
+
         public IActionResult AddMember(Guid projectId, Guid employeeId)
         {
-            if (!_session.IsManager)
-                return RedirectToAction("Index");
 
             _takePartService.AddMember(employeeId, projectId, DateTime.Now);
             return RedirectToAction("Details", new { id = projectId });
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ManagerOnlyAttribute]
         public IActionResult RemoveMember(Guid projectId, Guid employeeId)
         {
-            if (!_session.IsManager)
-                return RedirectToAction("Index");
+            
 
             _takePartService.RemoveMember(employeeId, projectId, DateTime.Now);
             return RedirectToAction("Details", new { id = projectId });
