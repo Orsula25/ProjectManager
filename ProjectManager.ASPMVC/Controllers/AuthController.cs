@@ -66,13 +66,11 @@ namespace ProjectManager.ASPMVC.Controllers
                 Debug.WriteLine("Getting employee info...");
                 Employee employee = _employeeService.GetById(employeeId.Value);
                 Debug.WriteLine($"Employee found: {employee.FirstName} {employee.LastName}, IsManager: {employee.IsProjectManager}");
-                
                 // stocker l'utilisateur en session 
                 _session.EmployeeId = employeeId;
                 _session.FirstName = employee.FirstName;
                 _session.LastName = employee.LastName;
                 _session.IsManager = employee.IsProjectManager;
-                
                 Debug.WriteLine("Session data stored successfully");
             }
             catch (Exception ex)
@@ -86,7 +84,9 @@ namespace ProjectManager.ASPMVC.Controllers
             return RedirectToAction("Index", "Project");
         }
 
-        //Logout 
+        //Logout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Logout()
         {
             _session.Clear();

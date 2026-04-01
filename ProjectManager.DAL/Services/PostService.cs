@@ -15,7 +15,7 @@ namespace ProjectManager.DAL.Services
     public class PostService : IPostRepository<Post>
     {
 
-        public readonly SqlConnection _connection;
+        private readonly SqlConnection _connection;
 
         public PostService(SqlConnection connection)
         {
@@ -30,7 +30,7 @@ namespace ProjectManager.DAL.Services
         {
             using (SqlCommand command = _connection.CreateCommand())
             {
-                command.CommandText = "  SP_Post_Get_FromProjectId_WorkOnProject";
+                command.CommandText = "SP_Post_Get_FromProjectId_WorkOnProject";
                 command.CommandType = CommandType.StoredProcedure;
 
                 command.Parameters.AddWithValue("@ProjectId", projectId);
@@ -77,17 +77,14 @@ namespace ProjectManager.DAL.Services
             }
 
 
-
         }
         // tous les posts pour un manager
         public IEnumerable<Post> GetAllFromManager(Guid managerId)
         {
             using (SqlCommand command = _connection.CreateCommand())
             {
-                command.CommandText = @"SELECT p.* FROM Post p 
-                                      INNER JOIN Project pr ON p.ProjectId = pr.ProjectId 
-                                      WHERE pr.ProjectManagerId = @ManagerId
-                                      ORDER BY p.SendDate DESC";
+                command.CommandText = "SP_Post_GetAll_FromManagerId";
+                command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@ManagerId", managerId);
 
                 _connection.Open();
@@ -107,10 +104,8 @@ namespace ProjectManager.DAL.Services
         {
             using (SqlCommand command = _connection.CreateCommand())
             {
-                command.CommandText = @"SELECT p.* FROM Post p 
-                                      INNER JOIN TakePart tp ON p.ProjectId = tp.ProjectId 
-                                      WHERE tp.EmployeeId = @EmployeeId AND tp.EndDate IS NULL
-                                      ORDER BY p.SendDate DESC";
+                command.CommandText = "SP_Post_GetAll_FromEmployeeId";
+                command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@EmployeeId", employeeId);
 
                 _connection.Open();
